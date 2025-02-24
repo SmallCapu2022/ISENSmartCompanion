@@ -3,6 +3,7 @@ package fr.isen.capucine.isensmartcompanion
 import android.graphics.Paint.Align
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,6 +27,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +58,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(innerPaddingValues: PaddingValues) {
     val context = LocalContext.current
-    var text = ""
+    var userInput = remember { mutableStateOf("")}
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,7 +76,11 @@ fun MainScreen(innerPaddingValues: PaddingValues) {
                 .padding(8.dp)
         ) {
             TextField(
-                text, {}, colors = TextFieldDefaults.colors(
+                value = userInput.value,
+                onValueChange = {newValue ->
+                    userInput.value = newValue
+                },
+                colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent
@@ -82,7 +88,7 @@ fun MainScreen(innerPaddingValues: PaddingValues) {
                 modifier = Modifier.weight(1F)
             )
             OutlinedButton(onClick = {
-                Log.d("testing", "button clicked")
+                Toast.makeText(context, "user input : ${userInput.value}", Toast.LENGTH_LONG).show()
             },
                 modifier = Modifier.background(Color.Red, shape = CircleShape),
                 content = {
