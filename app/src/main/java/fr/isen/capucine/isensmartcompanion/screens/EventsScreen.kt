@@ -11,16 +11,43 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import fr.isen.capucine.isensmartcompanion.EventDetailActivity
+import fr.isen.capucine.isensmartcompanion.api.NetworkManager
 import fr.isen.capucine.isensmartcompanion.models.EventModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun EventsScreen(innerPadding: PaddingValues) {
     val context = LocalContext.current
-    val events = EventModel.fakeEvents()
+    var events by remember { mutableStateOf<List<EventModel>>(emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            try {
+                val response = NetworkManager.api.getEvents()
+                if (response.isSuccessful) {
+                    response.body()?.let { eventList ->
+                        events = eventList
+                    }
+                } else {
+                    Log.e("EventsScreen", "Erreur API : ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                Log.e("EventsScreen", "Exception : ${e.message}")
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -28,8 +55,11 @@ fun EventsScreen(innerPadding: PaddingValues) {
             .padding(innerPadding)
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(8.dp)
-        ) {
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp) // 🔹 Ajoute un espacement entre les éléments
+        ){
             items(events) { event ->
                 EventRow(event, context)
             }
