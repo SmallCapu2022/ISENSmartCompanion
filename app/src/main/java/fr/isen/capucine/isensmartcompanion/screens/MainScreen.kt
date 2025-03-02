@@ -1,15 +1,16 @@
 package fr.isen.capucine.isensmartcompanion.screens
 
 import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,11 +19,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import fr.isen.capucine.isensmartcompanion.R
+import fr.isen.capucine.isensmartcompanion.models.GenerativeModelHelper
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(innerPadding: PaddingValues) {
     val context = LocalContext.current
-    var userInput = remember { mutableStateOf("") }
+    var userInput by remember { mutableStateOf("") }
+    val chatList = remember { mutableStateListOf<String>() }
+
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -35,46 +41,70 @@ fun MainScreen(innerPadding: PaddingValues) {
         Image(
             painter = painterResource(R.drawable.isen),
             contentDescription = context.getString(R.string.isen_logo),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
         )
 
         Text(
-            text = context.getString(R.string.app_name),
+            text = context.getString(R.string.isen_logo),
             style = MaterialTheme.typography.headlineSmall
         )
 
         // 📌 Espacement avant la zone de saisie
         Spacer(modifier = Modifier.weight(1f))
 
-        // 📌 Row contenant le champ de saisie et le bouton d’envoi
+        // 📌 Affichage des messages sous forme de liste
+        LazyColumn {
+            items(chatList) { eachChat ->
+                Text("$eachChat")
+            }
+        }
+
+        // 📌 Row contenant le champ de saisie et le bouton d'envoi
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.LightGray)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
-                value = userInput.value,
-                onValueChange = { newValue -> userInput.value = newValue },
+                value = userInput,
+                onValueChange = { newValue -> userInput = newValue },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent,
                     errorContainerColor = Color.Transparent
                 ),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
+                modifier = Modifier.weight(1f)
             )
 
             // 📌 Nouveau design du bouton d'envoi
             IconButton(
                 onClick = {
-                    Toast.makeText(context, "User input: ${userInput.value}", Toast.LENGTH_LONG).show()
+                    if (userInput.isNotEmpty()) {
+                        scope.launch {
+                            // Appel à GenerativeModelHelper pour obtenir la réponse de Gemini
+                            try {
+                                val response = GenerativeModelHelper.generativeModel.generateContent(userInput)
+                                // Ajout de l'entrée de l'utilisateur à la liste
+                                chatList.add("Utilisateur: $userInput")
+
+                                // Ajout de la réponse générée par Gemini
+                                val aiResponse = response.text ?: "Aucune réponse générée"
+                                chatList.add("IA: $aiResponse")  // Ajout de la réponse à la liste des chats
+
+                                // Réinitialisation du champ de saisie
+                                userInput = ""
+                            } catch (e: Exception) {
+                                Log.e("gemini", "Error: ${e.message}")
+                                chatList.add("Erreur lors de l'analyse de l'IA: ${e.message}")
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "Veuillez entrer un texte avant d'envoyer", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier
                     .size(48.dp)
@@ -83,7 +113,7 @@ fun MainScreen(innerPadding: PaddingValues) {
             ) {
                 Image(
                     painter = painterResource(R.drawable.send),
-                    contentDescription = "Send",
+                    contentDescription = "Envoyer",
                     modifier = Modifier.size(24.dp)
                 )
             }

@@ -13,7 +13,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -60,6 +59,12 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    // Dépendance pour le SDK Google AI Client
+    implementation (libs.generativeai.v060)
+
+    // Retrofit et Gson pour l'appel de l'API Gemini
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
     implementation(libs.gson)
     implementation(libs.converter.gson)
     implementation(libs.retrofit)

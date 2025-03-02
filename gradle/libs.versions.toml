@@ -1,6 +1,9 @@
 [versions]
 agp = "8.5.1"
 converterGson = "2.9.0"
+generativeai = "0.9.0"
+generativeaiVersion = "0.1.2"
+googleGenerativeai = "0.6.0"
 gson = "2.12.1"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
@@ -11,11 +14,15 @@ lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.9.1"
 composeBom = "2024.04.01"
 navigationCompose = "2.8.7"
+firebaseVertexai = "16.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
+generativeai-v012 = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeaiVersion" }
+generativeai-v060 = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "googleGenerativeai" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -32,6 +39,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "converterGson" }
 retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson" }
+firebase-vertexai = { group = "com.google.firebase", name = "firebase-vertexai", version.ref = "firebaseVertexai" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
