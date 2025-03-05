@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-kapt")
 }
+
 
 android {
     namespace = "fr.isen.capucine.isensmartcompanion"
@@ -62,6 +64,13 @@ dependencies {
     // Dépendance pour le SDK Google AI Client
     implementation (libs.generativeai.v060)
 
+
+    implementation (libs.androidx.room.runtime)
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation (libs.androidx.room.ktx)
+
+
+
     // Retrofit et Gson pour l'appel de l'API Gemini
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
@@ -77,3 +86,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+

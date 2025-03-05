@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import fr.isen.capucine.isensmartcompanion.MainActivity
 import fr.isen.capucine.isensmartcompanion.R
 import fr.isen.capucine.isensmartcompanion.models.GenerativeModelHelper
 import kotlinx.coroutines.launch
@@ -80,20 +81,22 @@ fun MainScreen(innerPadding: PaddingValues) {
                 modifier = Modifier.weight(1f)
             )
 
-            // 📌 Nouveau design du bouton d'envoi
             IconButton(
                 onClick = {
                     if (userInput.isNotEmpty()) {
                         scope.launch {
-                            // Appel à GenerativeModelHelper pour obtenir la réponse de Gemini
                             try {
                                 val response = GenerativeModelHelper.generativeModel.generateContent(userInput)
-                                // Ajout de l'entrée de l'utilisateur à la liste
-                                chatList.add("Utilisateur: $userInput")
 
-                                // Ajout de la réponse générée par Gemini
                                 val aiResponse = response.text ?: "Aucune réponse générée"
-                                chatList.add("IA: $aiResponse")  // Ajout de la réponse à la liste des chats
+
+                                // Ajout à l'affichage du chat
+                                chatList.add("Utilisateur: $userInput")
+                                chatList.add("IA: $aiResponse")
+
+                                // 🔥 Sauvegarde dans la base de données
+                                val activity = context as? MainActivity
+                                activity?.saveInteraction(userInput, aiResponse)
 
                                 // Réinitialisation du champ de saisie
                                 userInput = ""
