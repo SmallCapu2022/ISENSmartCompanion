@@ -5,4 +5,41 @@
     <string name="event">Events</string>
     <string name="history">History</string>
     <string name="title_activity_event_detail">EventDetailActivity</string>
+    <string name="history_database">History Database</string>
+
+    <string name="event_gala_title">Gala annuel de l\'ISEN</string>
+    <string name="event_gala_description">Soirée prestigieuse organisée par le BDE</string>
+    <string name="event_gala_date">10 avril 2025</string>
+    <string name="event_gala_location">Palais Neptune, Toulon</string>
+    <string name="event_gala_category">BDE</string>
+
+    <string name="event_charity_title">Soirée Caritative Isen Partage</string>
+    <string name="event_charity_description">Soirée prestigieuse organisée par Isen Partage pour l\'Unicef</string>
+    <string name="event_charity_date">10 mai 2025</string>
+    <string name="event_charity_location">Carré Sud, Toulon</string>
+    <string name="event_charity_category">Partage</string>
+
+    <string name="api_error">Erreur API : %1$s</string>
+    <string name="exception_error">Exception : %1$s</string>
+    <string name="event_date_display">%1$s</string>
+
+    <string name="history_title">History</string>
+    <string name="no_history_available">No history available</string>
+    <string name="clear_history">Clear History</string>
+
+    <string name="ask_question_placeholder">Ask a question to Gemini</string>
+    <string name="no_response_generated">No response generated</string>
+    <string name="user_prefix">USER: %1$s</string>
+    <string name="ia_prefix">AI: %1$s</string>
+    <string name="error_parsing_ai">Error parsing AI: %1$s</string>
+    <string name="empty_message_warning">Please enter something</string>
+
+    <string name="event_reminder">Event Reminder</string>
+    <string name="reminder">Reminder</string>
+    <string name="event_notification">Your event "%1$s" is coming up!</string>
+    <string name="event_reminders_channel">Event Reminders</string>
+
+    <string name="db_save_success">Save successful</string>
+
+
 </resources>

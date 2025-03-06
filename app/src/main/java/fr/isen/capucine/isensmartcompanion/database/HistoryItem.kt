@@ -9,5 +9,5 @@ data class HistoryItem(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val question: String,
     val answer: String,
-    val date: Long = System.currentTimeMillis() // Stockage de la date en timestamp
+    val date: Long = System.currentTimeMillis()
 )

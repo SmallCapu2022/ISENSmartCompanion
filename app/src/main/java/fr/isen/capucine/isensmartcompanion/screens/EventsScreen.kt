@@ -1,7 +1,6 @@
 package fr.isen.capucine.isensmartcompanion.screens
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,17 +9,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import fr.isen.capucine.isensmartcompanion.EventDetailActivity
+import androidx.compose.ui.unit.dp
+import fr.isen.capucine.isensmartcompanion.R
 import fr.isen.capucine.isensmartcompanion.api.NetworkManager
 import fr.isen.capucine.isensmartcompanion.models.EventModel
 import kotlinx.coroutines.launch
@@ -40,14 +34,14 @@ fun EventsScreen(innerPadding: PaddingValues) {
                         events = eventList
                     }
                 } else {
-                    Log.e("EventsScreen", "Erreur API : ${response.errorBody()}")
+                    Log.e("EventsScreen", context.getString(R.string.api_error, response.errorBody()))
                 }
             } catch (e: Exception) {
-                Log.e("EventsScreen", "Exception : ${e.message}")
+                Log.e("EventsScreen", context.getString(R.string.exception_error, e.message))
+
             }
         }
     }
-
 
     Column(
         modifier = Modifier
@@ -58,8 +52,8 @@ fun EventsScreen(innerPadding: PaddingValues) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp) // 🔹 Ajoute un espacement entre les éléments
-        ){
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             items(events) { event ->
                 EventRow(event, context)
             }
@@ -75,22 +69,15 @@ fun EventRow(event: EventModel, context: Context) {
             .padding(8.dp)
             .clickable {
                 Log.d("event", "Clicked on: ${event.title}")
-                val intent = Intent(context, EventDetailActivity::class.java).apply {
-                    putExtra("event_id", event.id)
-                    putExtra("event_title", event.title)
-                    putExtra("event_description", event.description)
-                    putExtra("event_date", event.date)
-                    putExtra("event_location", event.location)
-                    putExtra("event_category", event.category)
-                }
-                context.startActivity(intent)
+                EventDetailActivity.start(context, event)
             },
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = event.title, style = MaterialTheme.typography.headlineSmall)
             Text(text = event.description, style = MaterialTheme.typography.bodyMedium)
-            Text(text = "📅 ${event.date}", style = MaterialTheme.typography.bodySmall)
+            Text(text = context.getString(R.string.event_date_display, event.date), style = MaterialTheme.typography.bodySmall)
+
         }
     }
 }

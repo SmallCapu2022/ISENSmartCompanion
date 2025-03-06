@@ -59,10 +59,8 @@ class MainActivity : ComponentActivity() {
                 unselectedIcon = ImageVector.vectorResource(id = R.drawable.history)
             )
 
-            // Creating a list of all the tabs
             val tabBarItems = listOf(homeTab, eventsTab, historyTab)
 
-            // Creating our navController
             val navController = rememberNavController()
             ISENSmartCompanionTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { TabView(tabBarItems, navController) }) { innerPadding ->
@@ -75,7 +73,7 @@ class MainActivity : ComponentActivity() {
                                 EventsScreen(innerPadding = innerPadding)
                             }
                             composable(historyTab.title) {
-                                HistoryScreen(innerPadding, context) // Pass context to HistoryScreen
+                                HistoryScreen(innerPadding, context)
                             }
                         }
                     }
@@ -90,7 +88,8 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             historyDao.insertHistoryItem(HistoryItem(question = question, answer = answer))
-            Log.d("Database", "Save successful")
+            Log.d("Database", getString(R.string.db_save_success))
+
         }
     }
 }

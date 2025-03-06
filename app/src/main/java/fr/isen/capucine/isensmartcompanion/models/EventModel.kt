@@ -1,31 +1,35 @@
 package fr.isen.capucine.isensmartcompanion.models
 
+import android.content.Context
+import fr.isen.capucine.isensmartcompanion.R
+import java.io.Serializable
+
 class EventModel (
     val id: String,
     val title: String,
     val description: String,
     val date : String,
     val location : String,
-    val category : String)
+    val category : String) : Serializable
 {
     companion object {
-        fun fakeEvents() : List<EventModel> {
+        fun fakeEvents(context: Context): List<EventModel> {
             return listOf(
                 EventModel(
                     "1e2d345a",
-                    "Gala annuel de l'ISEN",
-                    "Soirée prestigieuse organisée par le BDE",
-                    "10 avril 2025",
-                    "Palais Neptune, Toulon",
-                    "BDE"
+                    context.getString(R.string.event_gala_title),
+                    context.getString(R.string.event_gala_description),
+                    context.getString(R.string.event_gala_date),
+                    context.getString(R.string.event_gala_location),
+                    context.getString(R.string.event_gala_category)
                 ),
                 EventModel(
                     "3oeirg9",
-                    "Soirée Caritative Isen Partage",
-                    "Soirée prestigieuse organisée par Isen Partage pour l'Unicef",
-                    "10 mai 2025",
-                    "Carré Sud, Toulon",
-                    "Partage"
+                    context.getString(R.string.event_charity_title),
+                    context.getString(R.string.event_charity_description),
+                    context.getString(R.string.event_charity_date),
+                    context.getString(R.string.event_charity_location),
+                    context.getString(R.string.event_charity_category)
                 )
             )
         }

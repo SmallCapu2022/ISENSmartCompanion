@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import fr.isen.capucine.isensmartcompanion.R
 
 @Database(entities = [HistoryItem::class], version = 1, exportSchema = false)
 abstract class HistoryDatabase : RoomDatabase() {
@@ -18,7 +19,7 @@ abstract class HistoryDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     HistoryDatabase::class.java,
-                    "history_database"
+                    context.getString(R.string.history_database)
                 ).build()
                 INSTANCE = instance
                 instance

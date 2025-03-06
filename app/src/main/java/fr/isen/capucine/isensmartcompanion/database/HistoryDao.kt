@@ -12,9 +12,9 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistoryItem(historyItem: HistoryItem)
 
-    // Utilisation de Flow pour observer les changements en temps réel
+    // On utilise Flow pour observer les changements en temps réel
     @Query("SELECT * FROM history ORDER BY date DESC")
-    fun getAllHistory(): Flow<List<HistoryItem>> // ⚡ Changement ici
+    fun getAllHistory(): Flow<List<HistoryItem>>
 
     @Delete
     suspend fun deleteHistoryItem(historyItem: HistoryItem)

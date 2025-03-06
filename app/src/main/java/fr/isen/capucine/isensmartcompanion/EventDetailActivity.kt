@@ -1,108 +1,160 @@
 package fr.isen.capucine.isensmartcompanion
 
-import android.os.Bundle
+import android.annotation.SuppressLint
+import android.app.*
+import android.content.*
+import android.os.*
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import fr.isen.capucine.isensmartcompanion.ui.theme.ISENSmartCompanionTheme
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import fr.isen.capucine.isensmartcompanion.models.EventModel
 
 class EventDetailActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        // 🔹 Récupération des données envoyées par l’intent
-        val eventTitle = intent.getStringExtra("event_title") ?: "Événement inconnu"
-        val eventDescription = intent.getStringExtra("event_description") ?: "Pas de description"
-        val eventDate = intent.getStringExtra("event_date") ?: "Date non spécifiée"
-        val eventLocation = intent.getStringExtra("event_location") ?: "Lieu inconnu"
-        val eventCategory = intent.getStringExtra("event_category") ?: "Catégorie inconnue"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 100)
+        }
+
+
+        val event = EventModel(
+            id = intent.getStringExtra("event_id") ?: "",
+            title = intent.getStringExtra("event_title") ?: "Unknown Event",
+            description = intent.getStringExtra("event_description") ?: "No description",
+            date = intent.getStringExtra("event_date") ?: "No date",
+            location = intent.getStringExtra("event_location") ?: "No location",
+            category = intent.getStringExtra("event_category") ?: "No category"
+        )
 
         setContent {
-            ISENSmartCompanionTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        EventDetailCard(
-                            title = eventTitle,
-                            description = eventDescription,
-                            date = eventDate,
-                            location = eventLocation,
-                            category = eventCategory
-                        )
-                    }
+            MaterialTheme {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    EventDetailCard(event, this@EventDetailActivity)
                 }
             }
+        }
+    }
+
+    companion object {
+        fun start(context: Context, event: EventModel) {
+            val intent = Intent(context, EventDetailActivity::class.java).apply {
+                putExtra("event_id", event.id)
+                putExtra("event_title", event.title)
+                putExtra("event_description", event.description)
+                putExtra("event_date", event.date)
+                putExtra("event_location", event.location)
+                putExtra("event_category", event.category)
+            }
+            context.startActivity(intent)
         }
     }
 }
 
 @Composable
-fun EventDetailCard(
-    title: String,
-    description: String,
-    date: String,
-    location: String,
-    category: String
-) {
+fun EventDetailCard(event: EventModel, context: Context) {
+    val sharedPreferences = context.getSharedPreferences("event_prefs", Context.MODE_PRIVATE)
+    var isPinned by remember { mutableStateOf(sharedPreferences.getBoolean(event.id, false)) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(24.dp),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.padding(24.dp)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center
-            )
+            Text(text = event.title, style = MaterialTheme.typography.headlineLarge)
+            Text(text = event.description, style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                fontSize = 18.sp
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(text = "📅 Date : $date", style = MaterialTheme.typography.bodyMedium, fontSize = 16.sp)
-            Text(text = "📍 Lieu : $location", style = MaterialTheme.typography.bodyMedium, fontSize = 16.sp)
-            Text(text = "🗂️ Catégorie : $category", style = MaterialTheme.typography.bodyMedium, fontSize = 16.sp)
+
+            IconButton(
+                onClick = {
+                    isPinned = !isPinned
+                    sharedPreferences.edit().putBoolean(event.id, isPinned).apply()
+                    if (isPinned) {
+                        scheduleNotification(context, event.title, 10)
+                    }
+                }
+            ) {
+                Icon(
+                    painter = painterResource(if (isPinned) R.drawable.bell_filled else R.drawable.bell_outline),
+                    contentDescription = "Set Reminder",
+                    tint = if (isPinned) Color.Green else Color.Gray,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun EventDetailPreview() {
-    ISENSmartCompanionTheme {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            EventDetailCard(
-                title = "Gala annuel de l'ISEN",
-                description = "Soirée prestigieuse organisée par le BDE",
-                date = "10 avril 2025",
-                location = "Palais Neptune, Toulon",
-                category = "BDE"
-            )
+@SuppressLint("ScheduleExactAlarm")
+fun scheduleNotification(context: Context, title: String, delaySeconds: Int) {
+    val intent = Intent(context, NotificationReceiver::class.java).apply {
+        putExtra("title", title)
+    }
+
+    val pendingIntent = PendingIntent.getBroadcast(
+        context, title.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val triggerTime = System.currentTimeMillis() + (delaySeconds * 1000)
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (!alarmManager.canScheduleExactAlarms()) {
+            val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+            context.startActivity(intent)
+            return
         }
+    }
+
+    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+}
+
+class NotificationReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        context?.let {
+            val title = intent?.getStringExtra("title") ?: context.getString(R.string.event_reminder)
+            showNotification(it, title)
+        }
+    }
+
+    private fun showNotification(context: Context, title: String) {
+        val notificationManager = ContextCompat.getSystemService(context, NotificationManager::class.java) as NotificationManager
+
+        val notificationBuilder = NotificationCompat.Builder(context, "event_channel")
+            .setSmallIcon(R.drawable.bell_filled)
+            .setContentTitle(context.getString(R.string.reminder))
+            .setContentText(context.getString(R.string.event_notification, title))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "event_channel", context.getString(R.string.event_reminders_channel), NotificationManager.IMPORTANCE_HIGH
+            )
+
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        notificationManager.notify(title.hashCode(), notificationBuilder.build())
     }
 }

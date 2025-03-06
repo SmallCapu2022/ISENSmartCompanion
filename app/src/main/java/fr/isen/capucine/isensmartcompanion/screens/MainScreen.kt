@@ -38,7 +38,7 @@ fun MainScreen(innerPadding: PaddingValues) {
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 📌 Logo ISEN
+
         Image(
             painter = painterResource(R.drawable.isen),
             contentDescription = context.getString(R.string.isen_logo),
@@ -46,21 +46,18 @@ fun MainScreen(innerPadding: PaddingValues) {
         )
 
         Text(
-            text = context.getString(R.string.isen_logo),
+            text = context.getString(R.string.app_name),
             style = MaterialTheme.typography.headlineSmall
         )
 
-        // 📌 Espacement avant la zone de saisie
         Spacer(modifier = Modifier.weight(1f))
 
-        // 📌 Affichage des messages sous forme de liste
         LazyColumn {
             items(chatList) { eachChat ->
-                Text("$eachChat")
+                Text(eachChat)
             }
         }
 
-        // 📌 Row contenant le champ de saisie et le bouton d'envoi
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,6 +69,7 @@ fun MainScreen(innerPadding: PaddingValues) {
             TextField(
                 value = userInput,
                 onValueChange = { newValue -> userInput = newValue },
+                placeholder = { Text(context.getString(R.string.ask_question_placeholder)) },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
@@ -88,25 +86,23 @@ fun MainScreen(innerPadding: PaddingValues) {
                             try {
                                 val response = GenerativeModelHelper.generativeModel.generateContent(userInput)
 
-                                val aiResponse = response.text ?: "Aucune réponse générée"
+                                val aiResponse = response.text ?: context.getString(R.string.no_response_generated)
 
-                                // Ajout à l'affichage du chat
-                                chatList.add("Utilisateur: $userInput")
-                                chatList.add("IA: $aiResponse")
+                                chatList.add(context.getString(R.string.user_prefix, userInput))
+                                chatList.add(context.getString(R.string.ia_prefix, aiResponse))
 
-                                // 🔥 Sauvegarde dans la base de données
                                 val activity = context as? MainActivity
                                 activity?.saveInteraction(userInput, aiResponse)
 
-                                // Réinitialisation du champ de saisie
                                 userInput = ""
                             } catch (e: Exception) {
                                 Log.e("gemini", "Error: ${e.message}")
-                                chatList.add("Erreur lors de l'analyse de l'IA: ${e.message}")
+                                chatList.add(context.getString(R.string.error_parsing_ai, e.message))
+
                             }
                         }
                     } else {
-                        Toast.makeText(context, "Veuillez entrer un texte avant d'envoyer", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.empty_message_warning), Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
@@ -122,7 +118,6 @@ fun MainScreen(innerPadding: PaddingValues) {
             }
         }
 
-        // 📌 Espacement avant la barre de navigation
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
